@@ -1,0 +1,15 @@
+{
+    "name": "Mautil Compression",
+    "description": "Compression tool for Nextcloud",
+    "type": "project",
+    "license": "AGPL",
+    "authors": [
+        {
+            "name": "Andrii Yevstratiev"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    }
+}
