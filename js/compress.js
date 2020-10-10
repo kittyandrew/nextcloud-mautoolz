@@ -1,4 +1,4 @@
-$(document).ready(function () {
+window.addEventListener("DOMContentLoaded", (event) => {
     console.log("Started loading ME..");
 	const actionsExtract = {
 		init: function () {
@@ -13,6 +13,8 @@ $(document).ready(function () {
                     const override = false;
                     const imgQuality = 1;
                     const external = context.fileInfoModel.attributes.mountType === "external";
+                    console.log(external, context.fileInfoModel.attributes);
+                    console.log(context.fileList.dirInfo.shareOwnerId);
 
                     const data = {
                         filename: filename,
@@ -30,9 +32,10 @@ $(document).ready(function () {
                     $.ajax({
                         type: "POST",
                         async: "true",
-                        url: OC.filePath('mautilcompression', 'api','compressFile.php'),
+                        url: OC.filePath('mautilcompression', 'ajax','compressFile.php'),
                         data: data,
                         beforeSend: function() {
+                            console.log("Sending data to the server: ", data);
                             //document.getElementById("buttons").setAttribute('style', 'display: none !important');
                         },
                         success: function(element) {

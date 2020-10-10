@@ -3,7 +3,7 @@ return [
     'routes' => [
 	   [
             'name' => 'mautilcompression#compressFile',
-            'url' => 'api/compressFile.php',
+            'url' => 'ajax/compressFile.php',
             'verb' => 'POST'
         ],
     ]

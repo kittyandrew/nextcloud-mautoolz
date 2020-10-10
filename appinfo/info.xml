@@ -12,12 +12,6 @@
     <category>tools</category>
     <bugs>https://github.com/kittyandrew/Nextcloud-MautilCompression</bugs>
     <dependencies>
-        <nextcloud min-version="19" max-version="19"/>
+        <nextcloud min-version="19" max-version="20"/>
     </dependencies>
-    <navigations>
-        <navigation>
-            <name>Mautil Compression</name>
-            <route>mautilcompression.page.index</route>
-        </navigation>
-    </navigations>
 </info>

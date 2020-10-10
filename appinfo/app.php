@@ -5,6 +5,6 @@
 use OCP\Util;
 $eventDispatcher = \OC::$server->getEventDispatcher();
 $eventDispatcher->addListener('OCA\Files::loadAdditionalScripts', function(){
-    Util::addScript('mautilcompression', 'mautilcompression' );
+    Util::addScript('mautilcompression', 'compress' );
     Util::addStyle('mautilcompression', 'style' );
 });
