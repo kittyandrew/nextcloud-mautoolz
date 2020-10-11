@@ -58,6 +58,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
             });
         }
     }
-    console.log("Loaded Mautil Compression extension js..");
+    console.log("Loaded Mautoolz extension js..");
 	actionsExtract.init();
 });
