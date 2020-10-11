@@ -1,12 +1,12 @@
 <?php
 
-namespace OCA\MautilCompression\Tests\Unit\Controller;
+namespace OCA\Mautoolz\Tests\Unit\Controller;
 
 use PHPUnit_Framework_TestCase;
 
 use OCP\AppFramework\Http\TemplateResponse;
 
-use OCA\MautilCompression\Controller\PageController;
+use OCA\Mautoolz\Controller\PageController;
 
 
 class PageControllerTest extends PHPUnit_Framework_TestCase {
@@ -17,7 +17,7 @@ class PageControllerTest extends PHPUnit_Framework_TestCase {
 		$request = $this->getMockBuilder('OCP\IRequest')->getMock();
 
 		$this->controller = new PageController(
-			'mautilcompression', $request, $this->userId
+			'mautoolz', $request, $this->userId
 		);
 	}
 

@@ -1,5 +1,5 @@
 <?php
-namespace OCA\Mautilcompression\Controller;
+namespace OCA\Mautoolz\Controller;
 
 use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -11,7 +11,7 @@ use \OCP\ILogger;
 use OCA\Files_External\MountConfig;
 
 
-class MautilcompressionController extends Controller {
+class MautoolzController extends Controller {
     private $config;
 	private $userId;
     private $logger;
@@ -68,7 +68,7 @@ class MautilcompressionController extends Controller {
                         'http://'.getenv("MAUTILS_HOST").':8080/api/compress/pdf '.
                         '-o '.escapeshellarg($newFilename);
         exec($curl_command, $output, $return);
-        $this->message($curl_command, $output, $return);
+        $this->$error($curl_command, array('output' => $output, 'code' => $return));
         // Return path of the new file
         return $newFilename;
     }
@@ -78,15 +78,7 @@ class MautilcompressionController extends Controller {
 	*/
 	public function scanFolder($path, $user) {
 		$response = array();
-		/*if($user == null){
-			$user = \OC::$server->getUserSession()->getUser()->getUID();
-		}*/
-		$version = \OC::$server->getConfig()->getSystemValue('version');
-		 if((int)substr($version, 0, 2) < 18) {
-			$scanner = new \OC\Files\Utils\Scanner($user, \OC::$server->getDatabaseConnection(), \OC::$server->getLogger());
-		 } else {
-			$scanner = new \OC\Files\Utils\Scanner($user, \OC::$server->getDatabaseConnection(), \OC::$server->query(IEventDispatcher::class), \OC::$server->getLogger());
-		 }
+		$scanner = new \OC\Files\Utils\Scanner($user, \OC::$server->getDatabaseConnection(), \OC::$server->query(IEventDispatcher::class), \OC::$server->getLogger());
 		try {
             $scanner->scan($path, $recusive = false);
         } catch (ForbiddenException $e) {
@@ -102,7 +94,7 @@ class MautilcompressionController extends Controller {
 		return 1;
 	}
 
-    public function message($command, $output = "", $return = 1) {
-        $this->logger->error($command, array('output' => $output, 'return' => $return));
+    public function error($command, $data) {
+        $this->logger->error($command, $data);
     }
 }

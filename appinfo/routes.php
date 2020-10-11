@@ -2,8 +2,8 @@
 return [
     'routes' => [
 	   [
-            'name' => 'mautilcompression#compressFile',
-            'url' => 'ajax/compressFile.php',
+            'name' => 'mautoolz#compressFile',
+            'url' => 'api/compressFile.php',
             'verb' => 'POST'
         ],
     ]

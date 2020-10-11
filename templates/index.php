@@ -1,6 +1,6 @@
 <?php
-script('mautilcompression', 'script');
-style('mautilcompression', 'style');
+script('mautoolz', 'script');
+style('mautoolz', 'style');
 ?>
 
 <div id="app">

@@ -1,5 +1,4 @@
 window.addEventListener("DOMContentLoaded", (event) => {
-    console.log("Started loading ME..");
 	const actionsExtract = {
 		init: function () {
 			OCA.Files.fileActions.registerAction({
@@ -22,7 +21,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
                         external: external,
                         override: override,
                         imgQuality: imgQuality,
-                        shareOwner: external ? null : context.fileList.dirInfo.shareOwnerId,
+                        shareOwner: context.fileList.dirInfo.shareOwnerId,
                         mtime: external ? context.fileInfoModel.attributes.mtime : 0,
                     };
                     // Show file processing
@@ -61,6 +60,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
             });
         }
     }
-    console.log("Loaded Mautil Compression extension js");
+    console.log("Loaded Mautil Compression extension js..");
 	actionsExtract.init();
 });

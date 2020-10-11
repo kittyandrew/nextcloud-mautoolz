@@ -1,4 +1,4 @@
-# Mautil Compression
+# Mautoolz
 Place this app in **nextcloud/apps/**
 
 ## Building the app

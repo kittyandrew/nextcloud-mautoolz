@@ -1,6 +1,6 @@
 {
-    "name": "Mautil Compression",
-    "description": "Compression tool for Nextcloud",
+    "name": "Mautoolz",
+    "description": "Cute tools for Nextcloud",
     "type": "project",
     "license": "AGPL",
     "authors": [
