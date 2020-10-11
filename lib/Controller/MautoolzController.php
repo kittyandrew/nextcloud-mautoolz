@@ -65,7 +65,7 @@ class MautoolzController extends Controller {
         }
         $curl_command = 'curl -F "upload=@'.$link.$filename.'" '.
                         '-H "Content-Type: multipart/form-data" '.
-                        'http://'.getenv("MAUTILS_HOST").':8080/api/compress/pdf '.
+                        'http://'.getenv("MAUTOOLZ_HOST").':8080/api/compress/pdf '.
                         '-o '.escapeshellarg($newFilename);
         exec($curl_command, $output, $return);
         $this->$error($curl_command, array('output' => $output, 'code' => $return));
