@@ -12,8 +12,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
                     const override = false;
                     const imgQuality = 1;
                     const external = context.fileInfoModel.attributes.mountType === "external";
-                    console.log(external, context.fileInfoModel.attributes);
-                    console.log(context.fileList.dirInfo.shareOwnerId);
 
                     const data = {
                         filename: filename,
@@ -31,7 +29,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
                     $.ajax({
                         type: "POST",
                         async: "true",
-                        url: OC.filePath('mautilcompression', 'ajax','compressFile.php'),
+                        url: OC.filePath('mautoolz', 'api','compressFile.php'),
                         data: data,
                         beforeSend: function() {
                             console.log("Sending data to the server: ", data);
@@ -50,8 +48,8 @@ window.addEventListener("DOMContentLoaded", (event) => {
                             }else{
                                 context.fileList.showFileBusyState(tr, false);
                                 OC.dialogs.alert(
-                                    t('mautilcompression', response.desc),
-                                    t('mautilcompression', `Error compressing ${filename}`)
+                                    t('mautoolz', response.desc),
+                                    t('mautoolz', `Error compressing ${filename}`)
                                 );
                             }
                         }
