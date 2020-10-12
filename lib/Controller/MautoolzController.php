@@ -41,7 +41,7 @@ class MautoolzController extends Controller {
 		}
         $response = array();
 		if (file_exists($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/'.$filename)){
-			$result = $this->compressPDF($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/', $filename, $newFilename, $imgQuality);
+			$result = $this->compressCMD($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/', $filename, $newFilename, $imgQuality);
 			$scan = self::scanFolder('/'.$this->UserId.'/files'.$directory.'/'.pathinfo($result)['filename'].'.pdf', $this->UserId);
 			if($scan != 1){
 				return $scan;
@@ -57,7 +57,7 @@ class MautoolzController extends Controller {
     /**
 	* @NoAdminRequired
 	*/
-	public function compressPDF($link, $filename, $newFilename, $imgQuality = 1) {
+	public function compressCMD($link, $filename, $newFilename, $imgQuality = 1) {
         if($newFilename == null) {
             $newFilename = $link.pathinfo($filename)['filename']." [Compressed].pdf";
         } else {
@@ -68,7 +68,61 @@ class MautoolzController extends Controller {
                         'http://'.getenv("MAUTOOLZ_HOST").':8080/api/compress/pdf '.
                         '-o '.escapeshellarg($newFilename);
         exec($curl_command, $output, $return);
-        $this->error($curl_command, array('output' => $output, 'code' => $return));
+        // $this->error($curl_command, array('output' => $output, 'code' => $return));
+        // Return path of the new file
+        return $newFilename;
+    }
+
+    /**
+	 * @NoAdminRequired
+	 */
+    public function convertToPDF($filename, $directory, $external, $override = false, $newFilename = null, $shareOwner = null, $mtime = 0) {
+		if (preg_match('/(\/|^)\.\.(\/|$)/', $filename)) {
+			$response = ['code' => false, 'desc' => 'Can\'t find file'];
+			return json_encode($response);
+		}
+		if (preg_match('/(\/|^)\.\.(\/|$)/', $directory)) {
+			$response = ['code' => false, 'desc' => 'Can\'t open file at directory'];
+			return json_encode($response);
+		}
+        // If file is already PDF, don't do anything
+        if (pathinfo($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/'.$filename)["extension"] == "pdf") {
+            $response = ['code' => false, 'desc' => 'File '.$filename.' is already in PDF format!'];
+            return json_encode($response);
+        }
+        if ($shareOwner != null){
+			$this->UserId = $shareOwner;
+		}
+        $response = array();
+		if (file_exists($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/'.$filename)){
+			$result = $this->convertCMD($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/', $filename, $newFilename, $imgQuality);
+			$scan = self::scanFolder('/'.$this->UserId.'/files'.$directory.'/'.pathinfo($result)['filename'].'.pdf', $this->UserId);
+			if($scan != 1){
+				return $scan;
+			}
+			$response = array_merge($response, array("code" => true));
+			return json_encode($response);
+		} else {
+			$response = array_merge($response, array("code" => false, "desc" => "Can't find file at ".$this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/'.$filename));
+			return json_encode($response);
+		}
+	}
+
+    /**
+	* @NoAdminRequired
+	*/
+	public function convertCMD($link, $filename, $newFilename) {
+        if($newFilename == null) {
+            $newFilename = $link.pathinfo($filename)['filename'].".pdf";
+        } else {
+            $newFilename = $link.pathinfo($newFilename)['filename'].".pdf";
+        }
+        $curl_command = 'curl -F format=pdf '.
+                        '-F "file=@'.$link.$filename.'" '.
+                        'http://'.getenv("MAUTOOLZ_CONVERT_HOST").':3000/convert '.
+                        '-o '.escapeshellarg($newFilename);
+        exec($curl_command, $output, $return);
+        // $this->error($curl_command, array('output' => $output, 'code' => $return));
         // Return path of the new file
         return $newFilename;
     }
