@@ -5,7 +5,7 @@
     <name>Mautoolz</name>
     <summary>Cute tools for Nextcloud</summary>
     <description><![CDATA[This tool is going to help you compressing PDF files in-place, convert between file types and much more in your Nextcloud!]]></description>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <licence>agpl</licence>
     <author mail="andrew@kittymail.me" >Andrii Yevstratiev</author>
     <namespace>Mautoolz</namespace>
