@@ -1,7 +1,7 @@
 window.addEventListener("DOMContentLoaded", (event) => {
 	const actionsExtract = {
 		init: function () {
-            const mimes = [
+            const mimes_mautoolz_converter = [
                 "application/vnd.lotus-wordpro",
 	            "application/vnd.ms-excel",
 	            "application/vnd.ms-powerpoint",
@@ -43,6 +43,10 @@ window.addEventListener("DOMContentLoaded", (event) => {
                 "text/plain",
                 "x-office",
             ];
+            const mimes_mautoolz = [
+                "application/epub+zip",
+            ];
+            const mimes = mimes_mautoolz_converter.concat(mimes_mautoolz);
             mimes.forEach(mime => {
 			    OCA.Files.fileActions.registerAction({
 				    name: 'convertToPDF',
@@ -54,12 +58,21 @@ window.addEventListener("DOMContentLoaded", (event) => {
 				    actionHandler: function (filename, context) {
                         const override = false;
                         const external = context.fileInfoModel.attributes.mountType === "external";
+                        let worker;
+                        if (mimes_mautoolz_converter.includes(mime)) {
+                            worker = "mautoolz-converter";
+                        } else if (mimes_mautoolz.includes(mime)) {
+                            worker = "mautoolz";
+                        } else {
+                            console.log("Fatal error: Impossible mime type in Mautoolz Converter");
+                        }
 
                         const data = {
                             filename: filename,
                             directory: context.dir,
                             external: external,
                             override: override,
+                            worker: worker,
                             shareOwner: context.fileList.dirInfo.shareOwnerId,
                             mtime: external ? context.fileInfoModel.attributes.mtime : 0,
                         };

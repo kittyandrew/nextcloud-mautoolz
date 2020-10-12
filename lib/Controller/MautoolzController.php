@@ -36,9 +36,13 @@ class MautoolzController extends Controller {
 			$response = ['code' => false, 'desc' => 'Can\'t open file at directory'];
 			return json_encode($response);
 		}
-        if ($shareOwner != null){
+        if ($shareOwner != null) {
 			$this->UserId = $shareOwner;
 		}
+        // Check if compression service is deployed
+        if (!getenv("MAUTOOLZ_HOST")) {
+            return json_encode(['code' => false, 'desc' => 'Variable "MAUTOOLZ_HOST" is not set! Can\'t proceed..']);
+        }
         $response = array();
 		if (file_exists($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/'.$filename)){
 			$result = $this->compressCMD($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/', $filename, $newFilename, $imgQuality);
@@ -76,7 +80,7 @@ class MautoolzController extends Controller {
     /**
 	 * @NoAdminRequired
 	 */
-    public function convertToPDF($filename, $directory, $external, $override = false, $newFilename = null, $shareOwner = null, $mtime = 0) {
+    public function convertToPDF($filename, $directory, $external, $override = false, $newFilename = null, $worker = null, $shareOwner = null, $mtime = 0) {
 		if (preg_match('/(\/|^)\.\.(\/|$)/', $filename)) {
 			$response = ['code' => false, 'desc' => 'Can\'t find file'];
 			return json_encode($response);
@@ -90,12 +94,21 @@ class MautoolzController extends Controller {
             $response = ['code' => false, 'desc' => 'File '.$filename.' is already in PDF format!'];
             return json_encode($response);
         }
-        if ($shareOwner != null){
+        // We use different workers for different mime types
+        if ($worker == null) {
+            $response = ['code' => false, 'desc' => 'Worker is not defined!'];
+            return json_encode($response);
+        } elseif ($worker == "mautoolz-converter" and !getenv("MAUTOOLZ_CONVERT_HOST")) {
+            return json_encode(['code' => false, 'desc' => 'Variable "MAUTOOLZ_CONVERT_HOST" is not set! Can\'t proceed..']);
+        } elseif ($worker == "mautoolz" and !getenv("MAUTOOLZ_HOST")) {
+            return json_encode(['code' => false, 'desc' => 'Variable "MAUTOOLZ_HOST" is not set! Can\'t proceed..']);
+        }
+        if ($shareOwner != null) {
 			$this->UserId = $shareOwner;
 		}
         $response = array();
 		if (file_exists($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/'.$filename)){
-			$result = $this->convertCMD($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/', $filename, $newFilename, $imgQuality);
+			$result = $this->convertCMD($this->config->getSystemValue('datadirectory', '').'/'.$this->UserId.'/files'.$directory.'/', $filename, $newFilename, $worker);
 			$scan = self::scanFolder('/'.$this->UserId.'/files'.$directory.'/'.pathinfo($result)['filename'].'.pdf', $this->UserId);
 			if($scan != 1){
 				return $scan;
@@ -111,20 +124,35 @@ class MautoolzController extends Controller {
     /**
 	* @NoAdminRequired
 	*/
-	public function convertCMD($link, $filename, $newFilename) {
-        if($newFilename == null) {
+	public function convertCMD($link, $filename, $newFilename, $worker) {
+        if ($newFilename == null) {
             $newFilename = $link.pathinfo($filename)['filename'].".pdf";
         } else {
             $newFilename = $link.pathinfo($newFilename)['filename'].".pdf";
         }
-        $curl_command = 'curl -F format=pdf '.
-                        '-F "file=@'.$link.$filename.'" '.
-                        'http://'.getenv("MAUTOOLZ_CONVERT_HOST").':3000/convert '.
-                        '-o '.escapeshellarg($newFilename);
-        exec($curl_command, $output, $return);
-        // $this->error($curl_command, array('output' => $output, 'code' => $return));
-        // Return path of the new file
-        return $newFilename;
+        // different workers, different urls
+        if ($worker == "mautoolz-converter") {
+            $curl_command = 'curl -s -F format=pdf '.
+                            '-F "file=@'.$link.$filename.'" '.
+                            'http://'.getenv("MAUTOOLZ_CONVERT_HOST").':3000/convert '.
+                            '-o '.escapeshellarg($newFilename);
+            exec($curl_command, $output, $return);
+            // $this->error($curl_command, array('output' => $output, 'code' => $return));
+            // Return path of the new file
+            return $newFilename;
+        } elseif ($worker == "mautoolz") {
+            $curl_command = 'curl -s -F "file=@'.$link.$filename.'" '.
+                            '-H "Content-Type: multipart/form-data" '.
+                            'http://'.getenv("MAUTOOLZ_HOST").':8080/api/convert/pdf '.
+                            '-o '.escapeshellarg($newFilename);
+            exec($curl_command, $output, $return);
+            $this->error($curl_command.'code='.$return, array('output' => $output, 'code' => $return));
+            // Return path of the new file
+            return $newFilename;
+        } else {
+            $this->error('Impossible worker: '.$worker, array('filename' => $filename));
+            return null;
+        }
     }
 
     /**
@@ -148,7 +176,10 @@ class MautoolzController extends Controller {
 		return 1;
 	}
 
-    public function error($command, $data) {
+    public function error($command, $data=null) {
+        if ($data == null) {
+            $data = array();
+        }
         $this->logger->error($command, $data);
     }
 }
